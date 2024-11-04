@@ -1,0 +1,11 @@
+[project]
+name= "pic2base16"
+version = "0.0.1"
+
+dependencies = [
+    "base16-colorlib",
+    "pillow"
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
