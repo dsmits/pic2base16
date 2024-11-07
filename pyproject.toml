@@ -3,9 +3,15 @@ name= "pic2base16"
 version = "0.0.1"
 
 dependencies = [
-    "base16-colorlib",
-    "pillow"
+    "pillow",
+    "clize",
+    "pyyaml",
+    "requests",
+    "GitPython",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest"]
+
+[project.scripts]
+pic2base16 = "pic2base16.convert:main"

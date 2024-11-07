@@ -1,0 +1,1 @@
+SCHEME_LIST_URI = "https://raw.githubusercontent.com/chriskempson/base16-schemes-source/refs/heads/main/list.yaml"
