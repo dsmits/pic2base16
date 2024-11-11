@@ -1,7 +1,12 @@
 #! /usr/bin/env python3
+import os
+
 import requests
 import yaml
 from pathlib import Path, PosixPath
+
+from clize import Parameter
+
 from pic2base16 import config
 import clize
 from PIL import ImageColor, Image
@@ -32,8 +37,20 @@ def get_target_size(im: ImageFile):
 
     return TARGET_WIDTH, int(im.height * scale)
 
+def retrieve_scheme_name():
+    home = os.getenv("HOME")
 
-def convert(input_: Path, target: Path, scheme_name: str, overwrite: bool = False):
+    manager_file = Path(home)/".config/base16-universal-manager/config.yaml"
+
+    with manager_file.open() as f:
+        manager_config = yaml.safe_load(f)
+        return manager_config["Colorscheme"]
+
+
+def convert(input_: Path, target: Path, scheme_name = None, overwrite: bool = False):
+    if scheme_name is None:
+        scheme_name = retrieve_scheme_name()
+
     if target.exists() and not overwrite:
         raise FileExistsError(f"{target} already exists")
 
@@ -83,11 +100,14 @@ def get_scheme(scheme_name: str):
         else:
             pattern = f"{root_name}.yaml"
 
+        print(f"Using scheme file {pattern}")
+
         for f in repo_path.iterdir():
             if f.match(pattern):
                 with f.open() as scheme_file:
                     return yaml.safe_load(scheme_file)
-        raise KeyError(f"Variant {variant_name} not found in scheme {root_name}")
+        raise KeyError(f"""Variant {variant_name} not found in scheme {root_name}
+                            Existing files: {list(repo_path.iterdir())}""")
 
 
 def retrieve_base_scheme(scheme_name, scheme_list):
