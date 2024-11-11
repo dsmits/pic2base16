@@ -2,7 +2,7 @@ from pic2base16.convert import convert, get_scheme
 from pathlib import Path
 
 TEST_PIC = Path("./tests/test_pic.jpg")
-TEST_SCHEME = "atelier-lakeside"
+TEST_SCHEME = "woodland"
 
 
 def test_convert_runs():

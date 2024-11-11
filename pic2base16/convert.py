@@ -19,7 +19,7 @@ def extract_palette(base16_scheme: dict[str, str]):
     palette = []
     for key, value in base16_scheme.items():
         if key.startswith("base"):
-            if value [0] != "#":
+            if value[0] != "#":
                 value = "#" + value
             rgb = ImageColor.getrgb(value)
             palette.extend(rgb)
@@ -57,32 +57,49 @@ def load_scheme_list():
 
     return scheme_list
 
+
 def get_palette(scheme_name: str):
     scheme = get_scheme(scheme_name)
 
     return extract_palette(scheme)
 
+
 def get_scheme(scheme_name: str):
-    name_parts = scheme_name.split("-")
-    root_name = name_parts[0]
-    variant_name = "-".join(name_parts[1:])
     scheme_list = load_scheme_list()
 
-    print(scheme_list)
-
-    scheme_uri = scheme_list[root_name]
-
+    try:
+        root_name, variant_name, scheme_uri = retrieve_base_scheme(scheme_name, scheme_list)
+    except KeyError:
+        raise KeyError(f"Scheme {scheme_name} not found. Available schemes: {scheme_list.keys()}")
     with (tempfile.TemporaryDirectory() as tempdir):
         repo_dir = Path(tempdir) / "scheme_repo"
-
         repo = Repo.clone_from(scheme_uri, repo_dir)
 
         repo_path = Path(repo.working_tree_dir)
 
+        print(f"Looking for {root_name}-{variant_name}.yaml")
+        if variant_name:
+            pattern = f"{root_name}-{variant_name}.yaml"
+        else:
+            pattern = f"{root_name}.yaml"
+
         for f in repo_path.iterdir():
-            if f.match(f"{root_name}-{variant_name}.yaml"):
+            if f.match(pattern):
                 with f.open() as scheme_file:
                     return yaml.safe_load(scheme_file)
+        raise KeyError(f"Variant {variant_name} not found in scheme {root_name}")
+
+
+def retrieve_base_scheme(scheme_name, scheme_list):
+    for key, scheme_uri in scheme_list.items():
+        if scheme_name.startswith(key):
+            root_name = key
+            variant_name = scheme_name[len(key) + 1:]
+            if not variant_name:
+                variant_name = None
+            scheme_uri = scheme_list[root_name]
+            return root_name, variant_name, scheme_uri
+    raise KeyError
 
 
 def main():
