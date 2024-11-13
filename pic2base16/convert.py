@@ -47,7 +47,9 @@ def retrieve_scheme_name():
         return manager_config["Colorscheme"]
 
 
-def convert(input_: Path, target: Path, scheme_name = None, overwrite: bool = False):
+def convert(input_: Path, target: Path, scheme_name = None, *, overwrite: bool = False,
+            resize: bool= False):
+    print(f"Converting {input_} to {target} using scheme {scheme_name}")
     if scheme_name is None:
         scheme_name = retrieve_scheme_name()
 
@@ -58,7 +60,12 @@ def convert(input_: Path, target: Path, scheme_name = None, overwrite: bool = Fa
 
     im = Image.open(input_)
     target_size = get_target_size(im)
-    im = im.resize(target_size)
+    if resize:
+        im = im.resize(target_size)
+
+    print( f"Image mode: {im.mode}")
+    # Make sure image can be quantized
+    im = im.convert("RGB")
 
     palette_image = Image.new("P", (1, 1))
 
