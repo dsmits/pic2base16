@@ -28,7 +28,6 @@ def extract_palette(base16_scheme: dict[str, str]):
                 value = "#" + value
             rgb = ImageColor.getrgb(value)
             palette.extend(rgb)
-    print(palette)
     return palette
 
 
@@ -63,7 +62,6 @@ def convert(input_: Path, target: Path, scheme_name = None, *, overwrite: bool =
     if resize:
         im = im.resize(target_size)
 
-    print( f"Image mode: {im.mode}")
     # Make sure image can be quantized
     im = im.convert("RGB")
 
