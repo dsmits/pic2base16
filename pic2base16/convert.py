@@ -47,13 +47,18 @@ def retrieve_scheme_name():
 
 
 def convert(input_: Path, target: Path, scheme_name = None, *, overwrite: bool = False,
-            resize: bool= False):
+            resize: bool= False, dither=False):
     print(f"Converting {input_} to {target} using scheme {scheme_name}")
     if scheme_name is None:
         scheme_name = retrieve_scheme_name()
 
     if target.exists() and not overwrite:
         raise FileExistsError(f"{target} already exists")
+
+    if not dither:
+        dither = Dither.NONE
+    else:
+        dither = Dither.FLOYDSTEINBERG
 
     palette = get_palette(scheme_name)
 
@@ -68,7 +73,7 @@ def convert(input_: Path, target: Path, scheme_name = None, *, overwrite: bool =
     palette_image = Image.new("P", (1, 1))
 
     palette_image.putpalette(palette)
-    converted = im.quantize(palette=palette_image, dither=Dither.FLOYDSTEINBERG)
+    converted = im.quantize(palette=palette_image, dither=dither)
 
     converted.save(target)
 
